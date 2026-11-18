@@ -54,3 +54,8 @@ public/uploads/
 *.before-*
 *.password-reset-backup
 *.save*
+
+# Prisma local database and backups
+prisma/dev.db
+prisma/*.backup
+prisma/*.save
