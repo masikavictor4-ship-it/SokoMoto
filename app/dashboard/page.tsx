@@ -41,7 +41,7 @@ export default async function DashboardPage() {
 
           <div className="relative z-10 max-w-3xl">
             <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-green-100">
-              MarketPlace Account
+              SokoMtaani Account
             </p>
 
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-green-50 sm:text-lg">
               Manage your account, explore products, check your orders, and
-              continue shopping from your MarketPlace dashboard.
+              continue shopping from your SokoMtaani dashboard.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
               <h3 className="font-bold text-slate-900">Browse Products</h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Discover products available on MarketPlace.
+                Discover products available on SokoMtaani.
               </p>
 
               <span className="mt-4 inline-block text-sm font-bold text-green-600">
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Your current MarketPlace account details.
+                  Your current SokoMtaani account details.
                 </p>
               </div>
 
@@ -301,7 +301,7 @@ export default async function DashboardPage() {
         {/* Bottom message */}
         <div className="mt-8 rounded-2xl border border-green-100 bg-green-50 p-5 text-center">
           <p className="text-sm font-medium text-green-800">
-            Thank you for using MarketPlace. Happy shopping! 🛒
+            Thank you for using SokoMtaani. Happy shopping! 🛒
           </p>
         </div>
       </section>

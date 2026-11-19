@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           from: RESEND_FROM_EMAIL,
           to: [email],
-          subject: "Reset your MarketPlace password",
+          subject: "Reset your SokoMtaani password",
           html: `
             <!DOCTYPE html>
             <html>
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
                 <div style="max-width:600px;margin:40px auto;background:white;border-radius:16px;padding:35px;box-shadow:0 5px 25px rgba(0,0,0,0.08);">
                   
                   <h1 style="color:#16a34a;margin-top:0;">
-                    MarketPlace
+                    SokoMtaani
                   </h1>
 
                   <h2>Password Reset Request</h2>
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
                   </p>
 
                   <p>
-                    We received a request to reset your MarketPlace password.
+                    We received a request to reset your SokoMtaani password.
                   </p>
 
                   <p>
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
                   <hr style="border:none;border-top:1px solid #eee;margin:30px 0;">
 
                   <p style="color:#888;font-size:12px;">
-                    MarketPlace security notification.
+                    SokoMtaani security notification.
                   </p>
                 </div>
               </body>

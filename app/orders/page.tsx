@@ -60,7 +60,7 @@ export default function OrdersPage() {
       <nav className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <h1 className="text-2xl font-bold text-green-600">
-            MarketPlace
+            SokoMtaani
           </h1>
 
           <div className="flex flex-wrap gap-3">

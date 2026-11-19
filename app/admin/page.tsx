@@ -41,7 +41,7 @@ export default async function AdminDashboard() {
       <div className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-10">
           <p className="text-sm font-semibold text-violet-600">
-            MARKETPLACE ADMINISTRATION
+            SOKOMTAANI ADMINISTRATION
           </p>
 
           <h1 className="mt-2 text-4xl font-bold text-gray-900">

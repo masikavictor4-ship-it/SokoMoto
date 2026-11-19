@@ -1,54 +1,64 @@
-import { NextResponse } from "next/server";
+
+import { NextRequest, NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 
-export async function GET() {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    const token = request.cookies.get("session")?.value;
+    const secret = process.env.AUTH_SECRET;
 
-    if (!user) {
+    if (!token || !secret) {
       return NextResponse.json(
-        { user: null },
+        { success: false, message: "Not authenticated." },
         { status: 401 }
       );
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(secret)
+    );
+
+    const userId = Number(payload.userId);
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return NextResponse.json(
+        { success: false, message: "Invalid session." },
+        { status: 401 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
         status: true,
-        profileImage: true,
       },
     });
 
-    if (!dbUser || dbUser.status !== "ACTIVE") {
+    if (!user || String(user.status).toUpperCase() !== "ACTIVE") {
       return NextResponse.json(
-        { user: null },
+        { success: false, message: "Account unavailable." },
         { status: 401 }
       );
     }
 
     return NextResponse.json({
-      user: {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        role: dbUser.role,
-        status: dbUser.status,
-        profileImage: dbUser.profileImage,
-      },
+      success: true,
+      user,
     });
   } catch (error) {
-    console.error("ME API error:", error);
+    console.error("GET ME ERROR:", error);
 
     return NextResponse.json(
-      { user: null },
+      { success: false, message: "Session expired or invalid." },
       { status: 401 }
     );
   }

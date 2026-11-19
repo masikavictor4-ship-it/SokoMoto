@@ -4,8 +4,13 @@ import SiteNav from "./components/SiteNav";
 import ChatWidget from "./components/ChatWidget";
 
 export const metadata: Metadata = {
-  title: "MarketPlace",
-  description: "Shop smarter. Live better.",
+  title: {
+    default: "SokoMtaani | Your Neighbourhood Marketplace",
+    template: "%s | SokoMtaani",
+  },
+  applicationName: "SokoMtaani",
+  description:
+    "Discover electronics, smartphones, computers, accessories and everyday products at SokoMtaani, your neighbourhood online marketplace.",
 };
 
 export default function RootLayout({

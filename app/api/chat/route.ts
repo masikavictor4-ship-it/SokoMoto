@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     });
 
     let reply =
-      "Thanks for contacting MarketPlace! I can help with products, prices, stock, orders, carts, and checkout.";
+      "Thanks for contacting SokoMtaani! I can help with products, prices, stock, orders, carts, and checkout.";
 
     if (
       text.includes("hello") ||
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       text.includes("hey")
     ) {
       reply =
-        "Hello 👋 Welcome to MarketPlace! How can I help you today?";
+        "Hello 👋 Welcome to SokoMtaani! How can I help you today?";
     } else if (
       text.includes("product") ||
       text.includes("products") ||
@@ -113,13 +113,13 @@ export async function POST(request: NextRequest) {
       text.includes("add to cart")
     ) {
       reply =
-        "To add an item to your cart, log in to your MarketPlace account, open Products, and click Add to Cart. You can then open your Cart to review your items.";
+        "To add an item to your cart, log in to your SokoMtaani account, open Products, and click Add to Cart. You can then open your Cart to review your items.";
     } else if (
       text.includes("order") ||
       text.includes("orders")
     ) {
       reply =
-        "After placing an order, you can use the Orders section of your MarketPlace account to view your orders and their status.";
+        "After placing an order, you can use the Orders section of your SokoMtaani account to view your orders and their status.";
     } else if (
       text.includes("mpesa") ||
       text.includes("m-pesa") ||
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       text.includes("pay")
     ) {
       reply =
-        "MarketPlace checkout supports M-Pesa payments. Enter your Kenyan phone number during checkout and follow the payment instructions.";
+        "SokoMtaani checkout supports M-Pesa payments. Enter your Kenyan phone number during checkout and follow the payment instructions.";
     } else if (
       text.includes("checkout") ||
       text.includes("buy")

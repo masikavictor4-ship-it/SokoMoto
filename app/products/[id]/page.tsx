@@ -45,7 +45,7 @@ export default async function ProductPage({
             href="/products"
             className="text-xl font-black text-violet-600"
           >
-            MarketPlace
+            SokoMtaani
           </Link>
 
           <div className="flex gap-3">

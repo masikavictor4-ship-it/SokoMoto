@@ -161,7 +161,7 @@ export default function ProductGallery({
             </h2>
 
             <p className="mt-2 text-sm font-semibold text-white/80 sm:text-base">
-              Premium product • MarketPlace
+              Premium product • SokoMtaani
             </p>
           </div>
 

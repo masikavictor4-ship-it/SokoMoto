@@ -25,7 +25,7 @@ export default function VerifyEmailPage() {
           href="/"
           className="text-2xl font-extrabold text-green-600"
         >
-          MarketPlace
+          SokoMtaani
         </a>
       </div>
 

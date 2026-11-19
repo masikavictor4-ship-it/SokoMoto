@@ -136,7 +136,7 @@ export default function ProductsPage() {
             <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-white/10 border-t-cyan-400" />
 
             <h2 className="mt-6 text-2xl font-black">
-              Loading Marketplace
+              Loading SokoMtaani
             </h2>
 
             <p className="mt-2 text-white/50">
@@ -193,7 +193,7 @@ export default function ProductsPage() {
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="text-sm font-black tracking-[0.2em] text-violet-600">
-              MARKETPLACE
+              SOKOMTAANI
             </p>
 
             <h2 className="mt-2 text-3xl font-black text-slate-900 sm:text-4xl">
@@ -775,7 +775,7 @@ function ProductHeroSlider({
                   <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7">
 
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
-                      MARKETPLACE
+                      SOKOMTAANI
                     </p>
 
 

@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/* =========================================================
+   USER
+   ========================================================= */
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  role        String   @default("CUSTOMER")
+  status      String   @default("ACTIVE")
+
+  phone          String?
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  profileImage String?
+
+  cartItems CartItem[]
+
+  customer ChatConversation?
+
+  senderMessages ChatMessage[]
+
+  emailVerificationTokens EmailVerificationToken[]
+
+  phoneVerificationTokens PhoneVerificationToken[]
+
+  passwordResetTokens PasswordResetToken[]
+
+  orders Order[]
+}
+
+
+/* =========================================================
+   EMAIL VERIFICATION
+   ========================================================= */
+
+model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
+/* =========================================================
+   PHONE VERIFICATION
+   ========================================================= */
+
+model PhoneVerificationToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
+/* =========================================================
+   PASSWORD RESET
+   ========================================================= */
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+
+/* =========================================================
+   PRODUCT
+   ========================================================= */
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  image       String?
+  createdAt   DateTime @default(now())
+
+  cartItems CartItem[]
+
+  items OrderItem[]
+
+  videos ProductVideo[]
+}
+
+
+/* =========================================================
+   PRODUCT VIDEO
+   ========================================================= */
+
+model ProductVideo {
+  id        Int      @id @default(autoincrement())
+  url       String
+  createdAt DateTime @default(now())
+  productId Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+
+/* =========================================================
+   CART
+   ========================================================= */
+
+model CartItem {
+  id       Int @id @default(autoincrement())
+  quantity Int @default(1)
+
+  userId    Int
+  productId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+
+/* =========================================================
+   ORDER
+   ========================================================= */
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  status        String @default("PENDING")
+  paymentStatus String @default("UNPAID")
+  paymentMethod String @default("MPESA")
+
+  transactionId String?
+  phoneNumber   String?
+  paidAt        DateTime?
+
+  /*
+   * Airtel Money
+   */
+  airtelTransactionId String?
+  airtelReference     String?
+
+  /*
+   * M-Pesa
+   */
+  checkoutRequestId String? @unique
+
+  /*
+   * Crypto - reserved for the next payment integration
+   */
+  cryptoCurrency       String?
+  cryptoAmount         String?
+  cryptoTransactionId  String?
+  cryptoNetwork        String?
+
+  /*
+   * Order totals and dates
+   */
+  total     Float
+  createdAt DateTime @default(now())
+
+  /*
+   * ORDER DELIVERY TRACKING
+   */
+  deliveryAddress   String?
+  deliveryLatitude  Float?
+  deliveryLongitude Float?
+
+  currentLatitude   Float?
+  currentLongitude  Float?
+
+  userId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([airtelTransactionId])
+  @@index([airtelReference])
+}
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  quantity Int
+  price    Float
+
+  orderId   Int
+  productId Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+
+/* =========================================================
+   SUPPORT CHAT
+   ========================================================= */
+
+model ChatConversation {
+  id Int @id @default(autoincrement())
+
+  customerId Int @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  messages ChatMessage[]
+}
+
+
+/* =========================================================
+   CHAT MESSAGES
+   ========================================================= */
+
+model ChatMessage {
+  id Int @id @default(autoincrement())
+
+  content String
+
+  createdAt DateTime @default(now())
+  readAt DateTime?
+
+  senderId Int
+  conversationId Int
+
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  conversation ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([conversationId])
+}

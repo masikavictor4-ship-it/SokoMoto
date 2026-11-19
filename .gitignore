@@ -59,3 +59,6 @@ public/uploads/
 prisma/dev.db
 prisma/*.backup
 prisma/*.save
+
+# Generated PostgreSQL Prisma client
+/generated/prisma-postgres/

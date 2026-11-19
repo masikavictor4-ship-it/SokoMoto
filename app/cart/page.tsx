@@ -712,7 +712,7 @@ export default function CartPage() {
         </div>
 
         <div className="mx-auto mt-8 max-w-7xl border-t border-white/10 pt-6 text-center text-xs">
-          © 2026 MarketPlace. All rights reserved.
+          © 2026 SokoMtaani. All rights reserved.
         </div>
       </footer>
     </main>

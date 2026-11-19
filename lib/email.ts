@@ -42,7 +42,7 @@ export async function sendVerificationEmail({
   const { data, error } = await resend.emails.send({
     from,
     to: [email],
-    subject: "Verify your MarketPlace account",
+    subject: "Verify your SokoMtaani account",
     html: `
       <div style="
         font-family: Arial, sans-serif;
@@ -52,7 +52,7 @@ export async function sendVerificationEmail({
       ">
 
         <h1 style="color: #16a34a;">
-          Welcome to MarketPlace
+          Welcome to SokoMtaani
         </h1>
 
         <p>
@@ -60,7 +60,7 @@ export async function sendVerificationEmail({
         </p>
 
         <p>
-          Thank you for creating your MarketPlace account.
+          Thank you for creating your SokoMtaani account.
           Please verify your email address by clicking the button below.
         </p>
 
@@ -98,7 +98,7 @@ export async function sendVerificationEmail({
         />
 
         <p style="color: #94a3b8; font-size: 12px;">
-          © ${new Date().getFullYear()} MarketPlace
+          © ${new Date().getFullYear()} SokoMtaani
         </p>
 
       </div>

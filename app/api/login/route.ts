@@ -1,37 +1,29 @@
-import { NextResponse } from "next/server";
+
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
 import { prisma } from "@/lib/prisma";
 
-const secretValue = process.env.AUTH_SECRET;
+export const runtime = "nodejs";
 
-if (!secretValue) {
-  throw new Error("AUTH_SECRET is not configured.");
-}
-
-const secret = new TextEncoder().encode(secretValue);
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const email =
-      typeof body.email === "string"
-        ? body.email.trim().toLowerCase()
-        : "";
-
-    const password =
-      typeof body.password === "string"
-        ? body.password
-        : "";
+    const email = String(body.email ?? "").trim().toLowerCase();
+    const password = String(body.password ?? "");
 
     if (!email || !password) {
       return NextResponse.json(
-        {
-          error: "Email and password are required.",
-        },
+        { success: false, message: "Email and password are required." },
         { status: 400 }
       );
+    }
+
+    const secret = process.env.AUTH_SECRET;
+
+    if (!secret || secret.length < 32) {
+      throw new Error("AUTH_SECRET is missing or invalid.");
     }
 
     const user = await prisma.user.findUnique({
@@ -40,40 +32,27 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        {
-          error: "Invalid email or password.",
-        },
+        { success: false, message: "Invalid email or password." },
         { status: 401 }
       );
     }
 
-    /*
-     * Email verification is OPTIONAL.
-     *
-     * Customers are allowed to log in even when
-     * emailVerifiedAt is null.
-     */
-    if (user.status !== "ACTIVE") {
-      return NextResponse.json(
-        {
-          error:
-            "Your account is not active. Please contact support.",
-        },
-        { status: 403 }
-      );
-    }
-
-    const passwordCorrect = await bcrypt.compare(
+    const passwordValid = await bcrypt.compare(
       password,
       user.password
     );
 
-    if (!passwordCorrect) {
+    if (!passwordValid) {
       return NextResponse.json(
-        {
-          error: "Invalid email or password.",
-        },
+        { success: false, message: "Invalid email or password." },
         { status: 401 }
+      );
+    }
+
+    if (String(user.status).toUpperCase() !== "ACTIVE") {
+      return NextResponse.json(
+        { success: false, message: "Account is not active." },
+        { status: 403 }
       );
     }
 
@@ -81,21 +60,27 @@ export async function POST(request: Request) {
       userId: user.id,
       email: user.email,
       role: user.role,
-      name: user.name,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(secret);
+      .sign(new TextEncoder().encode(secret));
+
+    const destination =
+      String(user.role).toUpperCase() === "ADMIN"
+        ? "/admin"
+        : "/dashboard";
 
     const response = NextResponse.json({
+      success: true,
       message: "Login successful.",
+      redirect: destination,
+      redirectTo: destination,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        emailVerified: !!user.emailVerifiedAt,
       },
     });
 
@@ -103,19 +88,16 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
       path: "/",
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("LOGIN API ERROR:", error);
 
     return NextResponse.json(
-      {
-        error:
-          "Something went wrong while logging in.",
-      },
+      { success: false, message: "Unable to complete login." },
       { status: 500 }
     );
   }

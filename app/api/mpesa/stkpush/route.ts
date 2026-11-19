@@ -160,7 +160,7 @@ export async function POST(request: Request) {
       PhoneNumber: normalizedPhone,
       CallBackURL: callbackUrl,
       AccountReference: `ORDER-${order.id}`,
-      TransactionDesc: `Marketplace Order ${order.id}`,
+      TransactionDesc: `SokoMtaani Order ${order.id}`,
     };
 
     console.log("Sending STK Push to Daraja...");

@@ -39,7 +39,7 @@ export default async function AdminOrdersPage() {
       <nav className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <h1 className="text-2xl font-bold text-green-600">
-            MarketPlace Admin
+            SokoMtaani Admin
           </h1>
 
           <div className="flex flex-wrap gap-3">

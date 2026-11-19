@@ -38,7 +38,7 @@ async function sendVerificationSMS(
   const normalizedPhone = normalizePhone(phone);
 
   const message =
-    `Your MarketPlace verification code is ${code}. ` +
+    `Your SokoMtaani verification code is ${code}. ` +
     `It expires in 10 minutes.`;
 
   const apiUrl =

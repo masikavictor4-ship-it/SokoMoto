@@ -18,7 +18,7 @@ export default function ChatWidget() {
       id: 1,
       role: "assistant",
       content:
-        "Hello 👋 Welcome to MarketPlace! How can I help you today?",
+        "Hello 👋 Welcome to SokoMtaani! How can I help you today?",
     },
   ]);
 
@@ -89,7 +89,7 @@ export default function ChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open MarketPlace chat"
+          aria-label="Open SokoMtaani chat"
           className="fixed bottom-5 right-5 z-[200] flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-500 text-2xl shadow-2xl shadow-fuchsia-500/30 transition duration-300 hover:scale-110 hover:shadow-fuchsia-500/50"
         >
           💬
@@ -107,7 +107,7 @@ export default function ChatWidget() {
               </div>
 
               <div>
-                <p className="font-black">MarketPlace Chat</p>
+                <p className="font-black">SokoMtaani Chat</p>
                 <div className="flex items-center gap-1.5 text-xs text-white/80">
                   <span className="h-2 w-2 rounded-full bg-emerald-300" />
                   Online
@@ -187,7 +187,7 @@ export default function ChatWidget() {
                 type="text"
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                placeholder="Ask MarketPlace..."
+                placeholder="Ask SokoMtaani..."
                 disabled={loading}
                 className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-violet-500"
               />

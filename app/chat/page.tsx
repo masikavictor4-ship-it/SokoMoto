@@ -216,7 +216,7 @@ export default function ChatPage() {
         <div className="mb-6">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            MarketPlace Support
+            SokoMtaani Support
           </div>
 
           <h1 className="mt-3 text-3xl font-bold text-gray-900">
@@ -240,7 +240,7 @@ export default function ChatPage() {
 
               <div>
                 <h2 className="font-bold">
-                  MarketPlace Support
+                  SokoMtaani Support
                 </h2>
 
                 <div className="flex items-center gap-2 text-sm text-emerald-50">
@@ -271,7 +271,7 @@ export default function ChatPage() {
                   </div>
 
                   <h3 className="text-xl font-bold text-gray-900">
-                    Welcome to MarketPlace Support
+                    Welcome to SokoMtaani Support
                   </h3>
 
                   <p className="mt-2 text-gray-500">
@@ -311,7 +311,7 @@ export default function ChatPage() {
                         >
                           {isCustomer
                             ? "You"
-                            : "MarketPlace Support"}
+                            : "SokoMtaani Support"}
                         </div>
 
                         <div

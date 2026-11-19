@@ -259,7 +259,7 @@ function VerifyPhoneForm() {
               href="/"
               className="text-sm font-semibold text-slate-500 hover:text-green-600"
             >
-              ← Back to MarketPlace
+              ← Back to SokoMtaani
             </Link>
           </div>
         </div>

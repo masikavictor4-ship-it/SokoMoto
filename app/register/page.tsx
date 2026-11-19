@@ -95,7 +95,7 @@ export default function RegisterPage() {
             </h1>
 
             <p className="mt-2 text-sm text-green-50">
-              Join MarketPlace today
+              Join SokoMtaani today
             </p>
           </div>
 

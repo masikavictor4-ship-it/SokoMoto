@@ -153,7 +153,7 @@ function ResetPasswordForm() {
             }}
           >
             Create a new password for your
-            MarketPlace account.
+            SokoMtaani account.
           </p>
         </div>
 

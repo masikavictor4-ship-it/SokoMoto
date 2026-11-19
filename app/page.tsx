@@ -99,7 +99,7 @@ export default function HomePage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-xs font-black tracking-[0.2em] backdrop-blur-xl">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-                WELCOME TO MARKETPLACE
+                WELCOME TO SOKOMTAANI
               </div>
 
               <h1 className="mt-7 max-w-3xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
@@ -151,7 +151,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium text-white/60">
-                        MARKETPLACE
+                        SOKOMTAANI
                       </p>
                       <h3 className="mt-1 text-xl font-black">
                         Trending Now
@@ -189,7 +189,7 @@ export default function HomePage() {
                     href="/products"
                     className="mt-5 block rounded-xl bg-white py-3 text-center font-black text-slate-900 transition hover:bg-cyan-300"
                   >
-                    Browse Marketplace
+                    Browse SokoMtaani
                   </Link>
                 </div>
 
@@ -467,7 +467,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer className="bg-black px-5 py-8 text-center text-sm text-white/50">
         <p>
-          © {new Date().getFullYear()} MarketPlace. All rights reserved.
+          © {new Date().getFullYear()} SokoMtaani. All rights reserved.
         </p>
       </footer>
     </main>

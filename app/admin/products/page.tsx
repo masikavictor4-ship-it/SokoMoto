@@ -355,7 +355,7 @@ export default function AdminProductsPage() {
       <nav className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <h1 className="text-2xl font-black text-violet-600">
-            MarketPlace Admin
+            SokoMtaani Admin
           </h1>
 
           <div className="flex gap-3">
