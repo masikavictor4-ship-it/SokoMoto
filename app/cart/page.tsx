@@ -173,7 +173,7 @@ export default function CartPage() {
       return;
     }
 
-    const validPhone = /^(\+254|254|0)7\d{8}$/;
+    const validPhone = /^(\+254|254|0)(7|1)\d{8}$/;
 
     if (!validPhone.test(phone.trim())) {
       setMessage(
