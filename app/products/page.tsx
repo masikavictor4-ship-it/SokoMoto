@@ -50,7 +50,7 @@ export default function ProductsPage() {
         );
       }
 
-      setProducts(data);
+      setProducts(Array.isArray(data.products) ? data.products : []);
     } catch (error) {
       console.error(error);
 

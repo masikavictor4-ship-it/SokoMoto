@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -5,6 +6,10 @@ import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
 import { createPhoneVerificationToken } from "@/lib/phoneVerification";
 import { normalizeKenyanPhone } from "@/lib/sms";
+
+export const runtime = "nodejs";
+
+const MAX_ACCOUNTS_PER_PHONE = 10;
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +35,7 @@ export async function POST(request: Request) {
         ? body.password
         : "";
 
+    // Validate required fields
     if (!name || !email || !phone || !password) {
       return NextResponse.json(
         {
@@ -39,6 +45,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate name
     if (name.length < 2) {
       return NextResponse.json(
         {
@@ -48,6 +55,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate password
     if (password.length < 6) {
       return NextResponse.json(
         {
@@ -57,6 +65,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Normalize Kenyan phone number
     let normalizedPhone: string;
 
     try {
@@ -71,6 +80,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check whether email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -84,23 +94,31 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingPhone = await prisma.user.findFirst({
+    // Count all accounts using this phone number
+    const phoneAccountCount = await prisma.user.count({
       where: {
         phone: normalizedPhone,
       },
     });
 
-    if (existingPhone) {
+    // Maximum 10 accounts per phone number
+    if (phoneAccountCount >= MAX_ACCOUNTS_PER_PHONE) {
       return NextResponse.json(
         {
-          error: "An account with this phone number already exists.",
+          error:
+            "This phone number has reached its maximum limit of 10 accounts. Please use another phone number.",
+          code: "PHONE_ACCOUNT_LIMIT_REACHED",
+          maximumAccounts: MAX_ACCOUNTS_PER_PHONE,
+          existingAccounts: phoneAccountCount,
         },
         { status: 409 }
       );
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create customer account
     const user = await prisma.user.create({
       data: {
         name,
@@ -113,7 +131,8 @@ export async function POST(request: Request) {
     });
 
     /*
-     * Create and send phone verification SMS.
+     * PHONE VERIFICATION
+     * Every account receives its own verification code.
      */
     try {
       await createPhoneVerificationToken(
@@ -130,10 +149,7 @@ export async function POST(request: Request) {
         smsError
       );
 
-      /*
-       * Remove the newly created account because
-       * phone verification is required.
-       */
+      // Delete account if required SMS cannot be sent
       await prisma.user.delete({
         where: {
           id: user.id,
@@ -152,10 +168,13 @@ export async function POST(request: Request) {
     }
 
     /*
+     * EMAIL VERIFICATION
      * Email verification remains optional.
      */
     try {
-      const rawToken = crypto.randomBytes(32).toString("hex");
+      const rawToken = crypto
+        .randomBytes(32)
+        .toString("hex");
 
       const tokenHash = crypto
         .createHash("sha256")
@@ -196,11 +215,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Successful registration response
     return NextResponse.json(
       {
+        success: true,
         message:
           "Account created successfully. A verification code has been sent to your phone.",
         phoneVerificationRequired: true,
+        maximumAccountsPerPhone: MAX_ACCOUNTS_PER_PHONE,
+        existingAccountsOnPhone: phoneAccountCount + 1,
         userId: user.id,
         user: {
           id: user.id,
@@ -214,6 +237,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
+
   } catch (error) {
     console.error("Registration error:", error);
 

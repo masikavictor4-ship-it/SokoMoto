@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -15,7 +15,10 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, message: "Email and password are required." },
+        {
+          success: false,
+          message: "Email and password are required.",
+        },
         { status: 400 }
       );
     }
@@ -32,7 +35,10 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password." },
+        {
+          success: false,
+          message: "Invalid email or password.",
+        },
         { status: 401 }
       );
     }
@@ -44,14 +50,33 @@ export async function POST(request: NextRequest) {
 
     if (!passwordValid) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password." },
+        {
+          success: false,
+          message: "Invalid email or password.",
+        },
         { status: 401 }
       );
     }
 
-    if (String(user.status).toUpperCase() !== "ACTIVE") {
+    // Diagnostic information: never log passwords or password hashes.
+    console.log("LOGIN ACCOUNT CHECK:", {
+      email: user.email,
+      status: user.status,
+      phoneVerifiedAt: user.phoneVerifiedAt,
+    });
+
+    if (
+      String(user.status).toUpperCase() !== "ACTIVE" ||
+      !user.phoneVerifiedAt
+    ) {
       return NextResponse.json(
-        { success: false, message: "Account is not active." },
+        {
+          success: false,
+          message: !user.phoneVerifiedAt
+            ? "Please verify your phone number before logging in."
+            : "Account is not active.",
+          phoneVerificationRequired: !user.phoneVerifiedAt,
+        },
         { status: 403 }
       );
     }
@@ -81,6 +106,7 @@ export async function POST(request: NextRequest) {
         name: user.name,
         email: user.email,
         role: user.role,
+        phoneVerified: true,
       },
     });
 
@@ -97,7 +123,10 @@ export async function POST(request: NextRequest) {
     console.error("LOGIN API ERROR:", error);
 
     return NextResponse.json(
-      { success: false, message: "Unable to complete login." },
+      {
+        success: false,
+        message: "Unable to complete login.",
+      },
       { status: 500 }
     );
   }

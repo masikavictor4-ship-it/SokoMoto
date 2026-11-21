@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -19,13 +20,10 @@ export async function POST(request: Request) {
     }
 
     const resultCode = Number(callback.ResultCode);
-    const checkoutRequestId =
-      callback.CheckoutRequestID;
+    const checkoutRequestId = callback.CheckoutRequestID;
 
     if (!checkoutRequestId) {
-      console.error(
-        "M-Pesa callback missing CheckoutRequestID."
-      );
+      console.error("Missing CheckoutRequestID.");
 
       return NextResponse.json({
         ResultCode: 0,
@@ -34,12 +32,8 @@ export async function POST(request: Request) {
     }
 
     const order = await prisma.order.findUnique({
-      where: {
-        checkoutRequestId,
-      },
-      include: {
-        items: true,
-      },
+      where: { checkoutRequestId },
+      include: { items: true },
     });
 
     if (!order) {
@@ -50,20 +44,21 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         ResultCode: 0,
-        ResultDesc: "Callback received.",
+        ResultDesc: "Order not found.",
       });
     }
 
-    /*
-     * Idempotency:
-     *
-     * If Safaricom sends the successful callback more than once,
-     * do not reduce stock or clear the cart again.
-     */
+    if (order.paymentMethod !== "MPESA") {
+      console.error("Callback received for a non-M-Pesa order.");
+
+      return NextResponse.json({
+        ResultCode: 0,
+        ResultDesc: "Invalid payment method.",
+      });
+    }
+
     if (order.paymentStatus === "PAID") {
-      console.log(
-        `Order ${order.id} is already PAID. Ignoring duplicate callback.`
-      );
+      console.log(`Order ${order.id} is already paid.`);
 
       return NextResponse.json({
         ResultCode: 0,
@@ -71,9 +66,7 @@ export async function POST(request: Request) {
       });
     }
 
-    /*
-     * Payment failed, cancelled, timed out, or was rejected.
-     */
+    // Handle unsuccessful, cancelled or timed-out payments.
     if (resultCode !== 0) {
       console.log(
         "M-Pesa payment was not completed:",
@@ -81,9 +74,7 @@ export async function POST(request: Request) {
       );
 
       await prisma.order.update({
-        where: {
-          id: order.id,
-        },
+        where: { id: order.id },
         data: {
           paymentStatus: "FAILED",
           status: "CANCELLED",
@@ -92,80 +83,82 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         ResultCode: 0,
-        ResultDesc: "Callback processed.",
+        ResultDesc: "Failed payment callback processed.",
       });
     }
 
+    // Read the successful payment metadata.
     const metadata = callback.CallbackMetadata?.Item || [];
 
     const getMetadataValue = (name: string) => {
       const item = metadata.find(
-        (entry: { Name: string }) =>
+        (entry: { Name: string; Value?: unknown }) =>
           entry.Name === name
       );
 
       return item?.Value;
     };
 
-    const transactionId =
-      getMetadataValue("MpesaReceiptNumber");
+    const transactionId = getMetadataValue("MpesaReceiptNumber");
+    const phoneNumber = getMetadataValue("PhoneNumber");
+    const amount = Number(getMetadataValue("Amount"));
 
-    const phoneNumber =
-      getMetadataValue("PhoneNumber");
-
-    const amount =
-      getMetadataValue("Amount");
-
-    console.log("Payment successful");
-    console.log("Order ID:", order.id);
-    console.log("Transaction ID:", transactionId);
-    console.log("Phone:", phoneNumber);
-    console.log("Amount:", amount);
-
+    // Never mark an order paid without a receipt number.
     if (!transactionId) {
-      console.error(
-        "Successful callback did not contain M-Pesa receipt number."
-      );
+      console.error("Successful callback is missing the M-Pesa receipt.");
 
       return NextResponse.json({
         ResultCode: 0,
-        ResultDesc: "Callback received.",
+        ResultDesc: "Missing payment receipt.",
       });
     }
 
-    /*
-     * Process payment, stock and cart together.
-     */
+    // Verify the amount received against the expected order amount.
+    const expectedAmount = Math.round(order.total);
+
+    if (
+      !Number.isFinite(amount) ||
+      amount !== expectedAmount
+    ) {
+      console.error("M-Pesa payment amount mismatch.", {
+        orderId: order.id,
+        expectedAmount,
+        receivedAmount: amount,
+      });
+
+      // Leave the order unpaid for investigation.
+      return NextResponse.json({
+        ResultCode: 0,
+        ResultDesc: "Payment amount mismatch. Order not marked as paid.",
+      });
+    }
+
+    console.log("Payment amount verified.");
+    console.log("Order ID:", order.id);
+    console.log("Expected amount:", expectedAmount);
+    console.log("Received amount:", amount);
+    console.log("Receipt:", transactionId);
+
+    // Process payment, stock and cart together.
     await prisma.$transaction(async (tx) => {
-      /*
-       * Re-check the order inside the transaction.
-       * This protects against duplicate callback processing.
-       */
       const currentOrder = await tx.order.findUnique({
-        where: {
-          id: order.id,
-        },
-        include: {
-          items: true,
-        },
+        where: { id: order.id },
+        include: { items: true },
       });
 
       if (!currentOrder) {
         throw new Error("Order no longer exists.");
       }
 
+      // Prevent duplicate payment processing.
       if (currentOrder.paymentStatus === "PAID") {
         return;
       }
 
-      /*
-       * Check stock again immediately before payment confirmation.
-       */
+      // Check product stock before reducing it.
       for (const item of currentOrder.items) {
         const product = await tx.product.findUnique({
-          where: {
-            id: item.productId,
-          },
+          where: { id: item.productId },
         });
 
         if (!product) {
@@ -181,14 +174,10 @@ export async function POST(request: Request) {
         }
       }
 
-      /*
-       * Reduce stock only after successful payment.
-       */
+      // Reduce stock after the successful payment.
       for (const item of currentOrder.items) {
         await tx.product.update({
-          where: {
-            id: item.productId,
-          },
+          where: { id: item.productId },
           data: {
             stock: {
               decrement: item.quantity,
@@ -197,13 +186,9 @@ export async function POST(request: Request) {
         });
       }
 
-      /*
-       * Mark the order as paid.
-       */
+      // Mark the order as paid.
       await tx.order.update({
-        where: {
-          id: currentOrder.id,
-        },
+        where: { id: currentOrder.id },
         data: {
           paymentStatus: "PAID",
           status: "CONFIRMED",
@@ -215,9 +200,7 @@ export async function POST(request: Request) {
         },
       });
 
-      /*
-       * Clear only this customer's cart.
-       */
+      // Clear this customer's cart.
       await tx.cartItem.deleteMany({
         where: {
           userId: currentOrder.userId,
@@ -231,19 +214,17 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ResultCode: 0,
-      ResultDesc:
-        "Payment callback processed successfully.",
+      ResultDesc: "Payment callback processed successfully.",
     });
   } catch (error) {
     console.error("M-Pesa callback error:", error);
 
-    /*
-     * Acknowledge the callback so Safaricom does not repeatedly
-     * resend it. The error remains in the server logs.
-     */
-    return NextResponse.json({
-      ResultCode: 0,
-      ResultDesc: "Callback received.",
-    });
+    return NextResponse.json(
+      {
+        ResultCode: 1,
+        ResultDesc: "Callback processing failed.",
+      },
+      { status: 500 }
+    );
   }
 }
